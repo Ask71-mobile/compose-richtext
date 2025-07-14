@@ -1,6 +1,6 @@
 object BuildPlugins {
   // keep in sync with buildSrc/build.gradle.kts
-  val androidGradlePlugin = "com.android.tools.build:gradle:8.7.0"
+  val androidGradlePlugin = "com.android.tools.build:gradle:8.9.1"
 }
 
 object AndroidX {
@@ -39,6 +39,7 @@ object Commonmark {
   val tables = "org.commonmark:commonmark-ext-gfm-tables:$version"
   val strikethrough = "org.commonmark:commonmark-ext-gfm-strikethrough:$version"
   val autolink = "org.commonmark:commonmark-ext-autolink:$version"
+  val footnotes = "org.commonmark:commonmark-ext-footnotes:$version"
 }
 
 object AndroidConfiguration {

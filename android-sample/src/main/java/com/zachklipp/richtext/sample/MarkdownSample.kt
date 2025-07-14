@@ -178,6 +178,18 @@ private val sampleMarkdown = """
   # Demo
   Based on [this cheatsheet][cheatsheet]
 
+  --- 
+  
+  ## Footnotes
+  
+  Here is a simple footnote[^1].
+  
+  A footnote can also have multiple lines[^2].
+  
+  [^1]: My reference.
+  [^2]: To add line breaks within a footnote, prefix new lines with 2 spaces.
+    This is a second line.
+  
   ---
 
   ## Headers
@@ -206,7 +218,7 @@ private val sampleMarkdown = """
   Strong emphasis, aka bold, with **asterisks** or __underscores__.
 
   Combined emphasis with **asterisks and _underscores_**.
-
+  
   ---
 
   ## Lists

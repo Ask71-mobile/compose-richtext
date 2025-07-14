@@ -115,6 +115,16 @@ public data class AstLinkReferenceDefinition(
 ) : AstLeafBlockNodeType()
 
 @Immutable
+public data class AstFootReferenceDefinition(
+    val label: String,
+) : AstLeafBlockNodeType()
+
+@Immutable
+public data class AstFootDefinition(
+    val label: String,
+) : AstLeafBlockNodeType()
+
+@Immutable
 public object AstParagraph : AstLeafBlockNodeType()
 
 //endregion

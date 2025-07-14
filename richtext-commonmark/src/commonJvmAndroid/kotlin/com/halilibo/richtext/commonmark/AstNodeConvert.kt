@@ -5,6 +5,8 @@ import com.halilibo.richtext.markdown.node.AstCode
 import com.halilibo.richtext.markdown.node.AstDocument
 import com.halilibo.richtext.markdown.node.AstEmphasis
 import com.halilibo.richtext.markdown.node.AstFencedCodeBlock
+import com.halilibo.richtext.markdown.node.AstFootDefinition
+import com.halilibo.richtext.markdown.node.AstFootReferenceDefinition
 import com.halilibo.richtext.markdown.node.AstHardLineBreak
 import com.halilibo.richtext.markdown.node.AstHeading
 import com.halilibo.richtext.markdown.node.AstHtmlBlock
@@ -32,6 +34,9 @@ import com.halilibo.richtext.markdown.node.AstText
 import com.halilibo.richtext.markdown.node.AstThematicBreak
 import com.halilibo.richtext.markdown.node.AstUnorderedList
 import org.commonmark.ext.autolink.AutolinkExtension
+import org.commonmark.ext.footnotes.FootnoteDefinition
+import org.commonmark.ext.footnotes.FootnoteReference
+import org.commonmark.ext.footnotes.FootnotesExtension
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -161,6 +166,12 @@ internal fun convert(
     is Strikethrough -> AstStrikethrough(
       node.openingDelimiter
     )
+    is FootnoteReference -> {
+        AstFootReferenceDefinition(node.label)
+    }
+    is FootnoteDefinition -> {
+        AstFootDefinition(node.label)
+    }
     is CustomNode -> null
     is CustomBlock -> null
     else -> null
@@ -191,7 +202,8 @@ public actual class CommonmarkAstNodeParser actual constructor(
       listOfNotNull(
         TablesExtension.create(),
         StrikethroughExtension.create(),
-        if (options.autolink) AutolinkExtension.create() else null
+        FootnotesExtension.create(),
+        if (options.autolink) AutolinkExtension.create() else null,
       )
     )
     .build()

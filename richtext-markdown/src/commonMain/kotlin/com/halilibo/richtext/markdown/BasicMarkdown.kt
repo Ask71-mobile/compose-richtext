@@ -9,6 +9,8 @@ import com.halilibo.richtext.markdown.node.AstBlockNodeType
 import com.halilibo.richtext.markdown.node.AstBlockQuote
 import com.halilibo.richtext.markdown.node.AstDocument
 import com.halilibo.richtext.markdown.node.AstFencedCodeBlock
+import com.halilibo.richtext.markdown.node.AstFootDefinition
+import com.halilibo.richtext.markdown.node.AstFootReferenceDefinition
 import com.halilibo.richtext.markdown.node.AstHeading
 import com.halilibo.richtext.markdown.node.AstHtmlBlock
 import com.halilibo.richtext.markdown.node.AstIndentedCodeBlock
@@ -239,6 +241,13 @@ private val DefaultAstNodeComposer = object : AstBlockNodeComposer {
       AstTableRow,
       is AstTableCell -> {
         println("MarkdownRichText: Unexpected Table node while traversing the Abstract Syntax Tree.")
+      }
+      is AstFootDefinition -> {
+        Text(richTextString { append(astNodeType.label) })
+      }
+      is AstFootReferenceDefinition -> {
+        Text(richTextString { append(astNodeType.label) })
+        visitChildren(astNode)
       }
     }.let {}
   }
