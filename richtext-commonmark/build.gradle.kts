@@ -11,6 +11,10 @@ repositories {
 
 android {
   namespace = "com.halilibo.richtext.commonmark"
+    buildTypes {
+        create("staging") {
+        }
+    }
 }
 
 kotlin {
