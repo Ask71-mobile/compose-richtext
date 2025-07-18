@@ -11,10 +11,6 @@ repositories {
 
 android {
   namespace = "com.halilibo.richtext.markdown"
-    buildTypes {
-        create("staging") {
-        }
-    }
 }
 
 kotlin {

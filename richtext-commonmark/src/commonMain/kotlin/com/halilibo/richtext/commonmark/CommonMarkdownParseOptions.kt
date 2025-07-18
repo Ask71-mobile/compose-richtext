@@ -6,7 +6,8 @@ package com.halilibo.richtext.commonmark
  * @param autolink Detect plain text links and turn them into Markdown links.
  */
 public class CommonMarkdownParseOptions(
-  public val autolink: Boolean
+    public val autolink: Boolean,
+    public val fadeEffect: Boolean = false,
 ) {
 
   override fun toString(): String {

@@ -32,4 +32,8 @@ android {
       withSourcesJar()
     }
   }
+  buildTypes {
+    create("staging") {
+    }
+  }
 }

@@ -211,7 +211,7 @@ private val DefaultAstNodeComposer = object : AstBlockNodeComposer {
       }
 
       is AstParagraph -> {
-        MarkdownRichText(astNode)
+        MarkdownRichText(astNode, fadeOutEffect = astNodeType.fadeOutEffect)
       }
 
       is AstTableRoot -> {

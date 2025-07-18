@@ -56,13 +56,13 @@ import com.halilibo.richtext.ui.string.withFormat
  * @param astNode Root node to accept as Text Content container.
  */
 @Composable
-internal fun RichTextScope.MarkdownRichText(astNode: AstNode, modifier: Modifier = Modifier) {
+internal fun RichTextScope.MarkdownRichText(astNode: AstNode, modifier: Modifier = Modifier, fadeOutEffect: Boolean = false) {
   // Assume that only RichText nodes reside below this level.
   val richText = remember(astNode) {
     computeRichTextString(astNode)
   }
 
-  Text(text = richText, modifier = modifier)
+  Text(text = richText, modifier = modifier, fadeOutEffect = fadeOutEffect)
 }
 
 private fun computeRichTextString(astNode: AstNode): RichTextString {

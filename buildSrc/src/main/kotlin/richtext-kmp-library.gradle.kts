@@ -34,4 +34,8 @@ android {
     minSdk = 21
     targetSdk = compileSdk
   }
+    buildTypes {
+        create("staging") {
+        }
+    }
 }

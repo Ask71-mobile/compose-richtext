@@ -125,7 +125,9 @@ public data class AstFootDefinition(
 ) : AstLeafBlockNodeType()
 
 @Immutable
-public object AstParagraph : AstLeafBlockNodeType()
+public data class AstParagraph(
+    val fadeOutEffect: Boolean
+) : AstLeafBlockNodeType()
 
 //endregion
 

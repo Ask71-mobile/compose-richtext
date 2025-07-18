@@ -79,6 +79,7 @@ import org.commonmark.parser.Parser
  */
 internal fun convert(
   node: Node?,
+  fadeOutEffect: Boolean = false,
   parentNode: AstNode? = null,
   previousNode: AstNode? = null,
 ): AstNode? {
@@ -136,7 +137,9 @@ internal fun convert(
       startNumber = node.startNumber,
       delimiter = node.delimiter
     )
-    is Paragraph -> AstParagraph
+    is Paragraph -> {
+        AstParagraph(fadeOutEffect)
+    }
     is SoftLineBreak -> AstSoftLineBreak
     is StrongEmphasis -> AstStrongEmphasis(
       delimiter = node.openingDelimiter
@@ -182,8 +185,8 @@ internal fun convert(
   }
 
   if (newNode != null) {
-    newNode.links.firstChild = convert(node.firstChild, parentNode = newNode, previousNode = null)
-    newNode.links.next = convert(node.next, parentNode = parentNode, previousNode = newNode)
+    newNode.links.firstChild = convert(node.firstChild, parentNode = newNode, previousNode = null, fadeOutEffect = fadeOutEffect)
+    newNode.links.next = convert(node.next, parentNode = parentNode, previousNode = newNode, fadeOutEffect = fadeOutEffect)
   }
 
   if (node.next == null) {
@@ -208,13 +211,15 @@ public actual class CommonmarkAstNodeParser actual constructor(
     )
     .build()
 
+    private val fadeOutEffect: Boolean = options.fadeEffect
+
   public actual fun parse(text: String): AstNode {
     val commonmarkNode = parser.parse(text)
       ?: throw IllegalArgumentException(
         "Could not parse the given text content into a meaningful Markdown representation!"
       )
 
-    return convert(commonmarkNode)
+    return convert(commonmarkNode, fadeOutEffect = fadeOutEffect)
       ?: throw IllegalArgumentException(
         "Could not convert the generated Commonmark Node into an ASTNode!"
       )
