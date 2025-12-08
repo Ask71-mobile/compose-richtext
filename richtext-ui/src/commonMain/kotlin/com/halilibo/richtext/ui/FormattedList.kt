@@ -100,7 +100,7 @@ public interface UnorderedMarkers {
  * Creates an [UnorderedMarkers] that will cycle through the values in [markers] for each
  * indentation level.
  */
-public fun @Composable RichTextScope.textUnorderedMarkers(
+public fun RichTextScope.textUnorderedMarkers(
   vararg markers: String
 ): UnorderedMarkers = UnorderedMarkers {
   Text(markers[it % markers.size])
@@ -259,7 +259,7 @@ private val LocalListLevel = compositionLocalOf { 0 }
 
     // Measure the prefixes first.
     val prefixPlaceables = prefixMeasureables.map { marker ->
-      marker.measure(Constraints())
+      marker.measure(constraints)
     }
       .toList()
     val widestPrefix = prefixPlaceables.maxByOrNull { it.width }!!
