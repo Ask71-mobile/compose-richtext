@@ -76,21 +76,36 @@ import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
 
 /**
- * Regex pattern to match <resource type="..." uri="..." /> tags
+ * Regex patterns to match <resource type="..." uri="..." /> tags in either attribute order
  */
-private val RESOURCE_TAG_PATTERN = Regex(
+private val RESOURCE_TAG_PATTERN_TYPE_FIRST = Regex(
   """<resource\s+type\s*=\s*"([^"]+)"\s+uri\s*=\s*"([^"]+)"\s*/?>"""
+)
+private val RESOURCE_TAG_PATTERN_URI_FIRST = Regex(
+  """<resource\s+uri\s*=\s*"([^"]+)"\s+type\s*=\s*"([^"]+)"\s*/?>"""
 )
 
 /**
  * Parses a resource tag from HTML inline literal.
  * Returns AstResourceTag if the literal matches the pattern, null otherwise.
+ * Supports both attribute orders: type-uri and uri-type.
  */
 private fun parseResourceTag(literal: String): AstResourceTag? {
-  val match = RESOURCE_TAG_PATTERN.find(literal) ?: return null
-  val type = match.groupValues[1]
-  val uri = match.groupValues[2]
-  return AstResourceTag(resourceType = type, uri = uri)
+  // Try type-first pattern
+  RESOURCE_TAG_PATTERN_TYPE_FIRST.find(literal)?.let { match ->
+    val type = match.groupValues[1]
+    val uri = match.groupValues[2]
+    return AstResourceTag(resourceType = type, uri = uri)
+  }
+
+  // Try uri-first pattern
+  RESOURCE_TAG_PATTERN_URI_FIRST.find(literal)?.let { match ->
+    val uri = match.groupValues[1]
+    val type = match.groupValues[2]
+    return AstResourceTag(resourceType = type, uri = uri)
+  }
+
+  return null
 }
 
 /**
@@ -130,9 +145,12 @@ internal fun convert(
     is HtmlInline -> parseResourceTag(node.literal) ?: AstHtmlInline(
       literal = node.literal
     )
-    is HtmlBlock -> AstHtmlBlock(
-      literal = node.literal
-    )
+    is HtmlBlock -> {
+      // Try to parse resource tags from HTML blocks (tags on their own lines)
+      parseResourceTag(node.literal.trim()) ?: AstHtmlBlock(
+        literal = node.literal
+      )
+    }
     is Image -> {
       if (node.destination == null) {
         null

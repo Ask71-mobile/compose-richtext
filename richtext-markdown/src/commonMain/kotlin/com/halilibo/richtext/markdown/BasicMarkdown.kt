@@ -28,6 +28,9 @@ import com.halilibo.richtext.markdown.node.AstTableRow
 import com.halilibo.richtext.markdown.node.AstText
 import com.halilibo.richtext.markdown.node.AstThematicBreak
 import com.halilibo.richtext.markdown.node.AstUnorderedList
+import com.halilibo.richtext.markdown.node.AstResourceTag
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.halilibo.richtext.ui.BlockQuote
 import com.halilibo.richtext.ui.CodeBlock
 import com.halilibo.richtext.ui.FormattedList
@@ -229,6 +232,40 @@ private val DefaultAstNodeComposer = object : AstBlockNodeComposer {
 
       is AstListItem -> {
         println("MarkdownRichText: Unexpected AstListItem while traversing the Abstract Syntax Tree.")
+      }
+
+      is AstResourceTag -> {
+        // Handle resource tags that appear at block level (from HtmlBlock parsing)
+        val uri = astNodeType.uri
+        val resourceType = astNodeType.resourceType
+        Text(text = richTextString {
+          appendInlineContent(
+            content = InlineContent(
+              initialSize = {
+                IntSize(24.dp.roundToPx(), 24.dp.roundToPx())
+              }
+            ) {
+              val renderer = LocalResourceTagRenderer.current
+              val indices = LocalResourceTagIndices.current
+              val index = indices[uri] ?: 0
+              val resourceInfo = ResourceTagInfo(
+                resourceType = resourceType,
+                uri = uri,
+                index = index
+              )
+              if (renderer != null) {
+                renderer.content(resourceInfo) {
+                  renderer.onResourceTagClick?.onClick(resourceInfo)
+                }
+              } else {
+                ResourceBadge(
+                  index = index,
+                  onClick = { /* No-op when no renderer provided */ }
+                )
+              }
+            }
+          )
+        })
       }
 
       is AstInlineNodeType -> {
