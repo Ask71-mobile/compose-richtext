@@ -20,6 +20,7 @@ import com.halilibo.richtext.markdown.node.AstLinkReferenceDefinition
 import com.halilibo.richtext.markdown.node.AstListItem
 import com.halilibo.richtext.markdown.node.AstNode
 import com.halilibo.richtext.markdown.node.AstParagraph
+import com.halilibo.richtext.markdown.node.AstResourceTag
 import com.halilibo.richtext.markdown.node.AstSoftLineBreak
 import com.halilibo.richtext.markdown.node.AstStrikethrough
 import com.halilibo.richtext.markdown.node.AstStrongEmphasis
@@ -128,6 +129,39 @@ private fun computeRichTextString(astNode: AstNode): RichTextString {
         }
         is AstLinkReferenceDefinition -> richTextStringBuilder.pushFormat(
           RichTextString.Format.Link(destination = currentNodeType.destination))
+        is AstResourceTag -> {
+          val uri = currentNodeType.uri
+          val resourceType = currentNodeType.resourceType
+          richTextStringBuilder.appendInlineContent(
+            content = InlineContent(
+              initialSize = {
+                // Default size for resource badge (24dp x 24dp)
+                IntSize(24.dp.roundToPx(), 24.dp.roundToPx())
+              }
+            ) {
+              val renderer = LocalResourceTagRenderer.current
+              val indices = LocalResourceTagIndices.current
+              val index = indices[uri] ?: 0
+              val resourceInfo = ResourceTagInfo(
+                resourceType = resourceType,
+                uri = uri,
+                index = index
+              )
+              if (renderer != null) {
+                renderer.content(resourceInfo) {
+                  renderer.onResourceTagClick?.onClick(resourceInfo)
+                }
+              } else {
+                // Default rendering: use built-in ResourceBadge
+                ResourceBadge(
+                  index = index,
+                  onClick = { /* No-op when no renderer provided */ }
+                )
+              }
+            }
+          )
+          null
+        }
         else -> null
       }
 

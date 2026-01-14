@@ -188,4 +188,14 @@ public data class AstText(
   val literal: String
 ) : AstInlineNodeType()
 
+/**
+ * Custom inline resource tag: <resource type="..." uri="..." />
+ * Used for rendering inline clickable badges that reference external resources.
+ */
+@Immutable
+public data class AstResourceTag(
+  val resourceType: String,
+  val uri: String
+) : AstInlineNodeType()
+
 //endregion
