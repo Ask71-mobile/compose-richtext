@@ -21,6 +21,7 @@ import com.halilibo.richtext.markdown.node.AstNodeLinks
 import com.halilibo.richtext.markdown.node.AstNodeType
 import com.halilibo.richtext.markdown.node.AstOrderedList
 import com.halilibo.richtext.markdown.node.AstParagraph
+import com.halilibo.richtext.markdown.node.AstResourceTag
 import com.halilibo.richtext.markdown.node.AstSoftLineBreak
 import com.halilibo.richtext.markdown.node.AstStrikethrough
 import com.halilibo.richtext.markdown.node.AstStrongEmphasis
@@ -75,6 +76,24 @@ import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
 
 /**
+ * Regex pattern to match <resource type="..." uri="..." /> tags
+ */
+private val RESOURCE_TAG_PATTERN = Regex(
+  """<resource\s+type\s*=\s*"([^"]+)"\s+uri\s*=\s*"([^"]+)"\s*/?>"""
+)
+
+/**
+ * Parses a resource tag from HTML inline literal.
+ * Returns AstResourceTag if the literal matches the pattern, null otherwise.
+ */
+private fun parseResourceTag(literal: String): AstResourceTag? {
+  val match = RESOURCE_TAG_PATTERN.find(literal) ?: return null
+  val type = match.groupValues[1]
+  val uri = match.groupValues[2]
+  return AstResourceTag(resourceType = type, uri = uri)
+}
+
+/**
  * Converts common-markdown tree to AstNode tree in a recursive fashion.
  */
 internal fun convert(
@@ -108,7 +127,7 @@ internal fun convert(
       level = node.level
     )
     is ThematicBreak -> AstThematicBreak
-    is HtmlInline -> AstHtmlInline(
+    is HtmlInline -> parseResourceTag(node.literal) ?: AstHtmlInline(
       literal = node.literal
     )
     is HtmlBlock -> AstHtmlBlock(
