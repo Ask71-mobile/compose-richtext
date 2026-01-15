@@ -76,36 +76,37 @@ import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
 
 /**
- * Regex patterns to match <resource type="..." uri="..." /> tags in either attribute order
+ * Regex pattern to match <resource ... /> tags with any attributes
  */
-private val RESOURCE_TAG_PATTERN_TYPE_FIRST = Regex(
-  """<resource\s+type\s*=\s*"([^"]+)"\s+uri\s*=\s*"([^"]+)"\s*/?>"""
-)
-private val RESOURCE_TAG_PATTERN_URI_FIRST = Regex(
-  """<resource\s+uri\s*=\s*"([^"]+)"\s+type\s*=\s*"([^"]+)"\s*/?>"""
+private val RESOURCE_TAG_PATTERN = Regex(
+  """<resource\s+([^>]+?)\s*/?>"""
 )
 
 /**
- * Parses a resource tag from HTML inline literal.
- * Returns AstResourceTag if the literal matches the pattern, null otherwise.
- * Supports both attribute orders: type-uri and uri-type.
+ * Regex pattern to parse individual attributes from a tag
+ */
+private val ATTRIBUTE_PATTERN = Regex(
+  """(\w+)\s*=\s*"([^"]+)""""
+)
+
+/**
+ * Parses a resource tag from HTML literal.
+ * Returns AstResourceTag if the literal matches the pattern and contains required attributes.
+ * Supports any attribute order and is extensible for future attributes.
  */
 private fun parseResourceTag(literal: String): AstResourceTag? {
-  // Try type-first pattern
-  RESOURCE_TAG_PATTERN_TYPE_FIRST.find(literal)?.let { match ->
-    val type = match.groupValues[1]
-    val uri = match.groupValues[2]
-    return AstResourceTag(resourceType = type, uri = uri)
-  }
+  val tagMatch = RESOURCE_TAG_PATTERN.find(literal) ?: return null
+  val attributesString = tagMatch.groupValues[1]
 
-  // Try uri-first pattern
-  RESOURCE_TAG_PATTERN_URI_FIRST.find(literal)?.let { match ->
-    val uri = match.groupValues[1]
-    val type = match.groupValues[2]
-    return AstResourceTag(resourceType = type, uri = uri)
-  }
+  // Parse all attributes into a map
+  val attributes = ATTRIBUTE_PATTERN.findAll(attributesString)
+    .associate { it.groupValues[1] to it.groupValues[2] }
 
-  return null
+  // Extract required attributes
+  val type = attributes["type"] ?: return null
+  val uri = attributes["uri"] ?: return null
+
+  return AstResourceTag(resourceType = type, uri = uri)
 }
 
 /**
