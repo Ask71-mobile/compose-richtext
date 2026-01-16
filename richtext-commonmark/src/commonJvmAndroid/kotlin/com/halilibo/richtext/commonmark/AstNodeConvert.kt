@@ -76,20 +76,36 @@ import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
 
 /**
- * Regex pattern to match <resource type="..." uri="..." /> tags
+ * Regex pattern to match <resource ... /> tags with any attributes
  */
 private val RESOURCE_TAG_PATTERN = Regex(
-  """<resource\s+type\s*=\s*"([^"]+)"\s+uri\s*=\s*"([^"]+)"\s*/?>"""
+  """<resource\s+([^>]+?)\s*/?>"""
 )
 
 /**
- * Parses a resource tag from HTML inline literal.
- * Returns AstResourceTag if the literal matches the pattern, null otherwise.
+ * Regex pattern to parse individual attributes from a tag
+ */
+private val ATTRIBUTE_PATTERN = Regex(
+  """(\w+)\s*=\s*"([^"]+)""""
+)
+
+/**
+ * Parses a resource tag from HTML literal.
+ * Returns AstResourceTag if the literal matches the pattern and contains required attributes.
+ * Supports any attribute order and is extensible for future attributes.
  */
 private fun parseResourceTag(literal: String): AstResourceTag? {
-  val match = RESOURCE_TAG_PATTERN.find(literal) ?: return null
-  val type = match.groupValues[1]
-  val uri = match.groupValues[2]
+  val tagMatch = RESOURCE_TAG_PATTERN.find(literal) ?: return null
+  val attributesString = tagMatch.groupValues[1]
+
+  // Parse all attributes into a map
+  val attributes = ATTRIBUTE_PATTERN.findAll(attributesString)
+    .associate { it.groupValues[1] to it.groupValues[2] }
+
+  // Extract required attributes
+  val type = attributes["type"] ?: return null
+  val uri = attributes["uri"] ?: return null
+
   return AstResourceTag(resourceType = type, uri = uri)
 }
 
@@ -130,9 +146,12 @@ internal fun convert(
     is HtmlInline -> parseResourceTag(node.literal) ?: AstHtmlInline(
       literal = node.literal
     )
-    is HtmlBlock -> AstHtmlBlock(
-      literal = node.literal
-    )
+    is HtmlBlock -> {
+      // Try to parse resource tags from HTML blocks (tags on their own lines)
+      parseResourceTag(node.literal.trim()) ?: AstHtmlBlock(
+        literal = node.literal
+      )
+    }
     is Image -> {
       if (node.destination == null) {
         null
